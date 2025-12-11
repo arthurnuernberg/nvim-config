@@ -1,4 +1,4 @@
-opt = vim.opt
+local opt = vim.opt
 
 -- Zeilennummern einblenden
 opt.number = true
@@ -13,6 +13,8 @@ opt.expandtab = true
 -- Anzahl an Leerzeichen für Tab
 opt.tabstop = 2
 opt.softtabstop = 2
+-- Für Ligaturen-Unterstützung (-> wird zu →)
+-- vim.o.guifont = "LB Mono:h14"
 -- Bestätigung bei bestimmten ungespeicherten Buffern einschalten
 opt.confirm = true
 -- Inline-Vorschaufenster der Ersetzung
@@ -26,7 +28,7 @@ opt.swapfile = false
 -- Undo-File für mehr Undo-Möglichkeiten
 opt.undofile = true
 -- Timeout für Kombinations-Shortcuts senken
-opt.timeoutlen = 400
+opt.timeoutlen = 600
 -- Highlighting der Suchergebnisse noch nach Suche deaktivieren
 opt.hlsearch = true
 -- Inkrementelle Suche von Ergebnissen; Zwischenergebnisse werden angezeigt
@@ -37,8 +39,8 @@ opt.ignorecase = true
 opt.smartcase = true
 -- Erweiterte Farbunterstützung
 opt.termguicolors = true
--- Platz neben Zeilennummern immer lassen für fixen Platz links
-opt.signcolumn = "yes"
+-- Zweifach Platz neben Zeilennummern immer lassen für fixen Platz links
+opt.signcolumn = "yes:2"
 -- Schnelle Update-Zeiten
 opt.updatetime = 50
 -- System- und Vim-Register trennen

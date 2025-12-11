@@ -150,6 +150,7 @@ map({ "n", "v" }, "<C-g>", function()
 		-- Ouvrir le diff Git
 		vim.cmd("Gvdiffsplit")
 	end
+  vim.api.nvim_command("normal! zz")
 end, opts_with_description)
 
 map("n", "<C-l>", funcs.toggle_gblame, opts_with_description)
@@ -188,6 +189,7 @@ map(
 	"<cmd>Telescope command_history<cr>",
 	{ silent = true, noremap = true, desc = "Show command history" }
 )
+map("n", "<C-t>", function() require("functions").theme_switcher() end, { silent = true, noremap = true, desc = "Theme Switcher" })
 
 -- map(
 -- 	"n",
