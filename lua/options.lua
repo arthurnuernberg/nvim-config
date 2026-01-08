@@ -6,6 +6,9 @@ opt.number = true
 opt.relativenumber = true
 -- Minimale Anzahl an Zeilen über und unter dem Cursor
 opt.scrolloff = 5
+-- Aktuelle Zeilennummer wird markiert
+opt.cursorline = true
+opt.cursorlineopt = "number"
 -- Länge von Tab
 opt.shiftwidth = 2
 -- Tab besteht aus Leerzeichen
@@ -13,8 +16,8 @@ opt.expandtab = true
 -- Anzahl an Leerzeichen für Tab
 opt.tabstop = 2
 opt.softtabstop = 2
--- Für Ligaturen-Unterstützung (-> wird zu →)
--- vim.o.guifont = "LB Mono:h14"
+-- Unterstützung von .editorconfig Dateien
+vim.g.editorconfig = true
 -- Bestätigung bei bestimmten ungespeicherten Buffern einschalten
 opt.confirm = true
 -- Inline-Vorschaufenster der Ersetzung
@@ -39,17 +42,51 @@ opt.ignorecase = true
 opt.smartcase = true
 -- Erweiterte Farbunterstützung
 opt.termguicolors = true
--- Zweifach Platz neben Zeilennummern immer lassen für fixen Platz links
-opt.signcolumn = "yes:2"
+-- Platz neben Zeilennummern dynamisch lassen, mindenstens 1, maximal 5 Spalten
+opt.signcolumn = "auto:1-5"
 -- Schnelle Update-Zeiten
 opt.updatetime = 50
 -- System- und Vim-Register trennen
 opt.clipboard = ""
+-- Session-Optionen
+opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+-- zeigt leere Zeichen an
+opt.list = false
+opt.listchars = {
+	tab = "->",
+	space = " ",
+	multispace = " ",
+	trail = "",
+	extends = "⟩",
+	precedes = "⟨",
+}
+vim.g.showbreak = "↪"
+
+vim.diagnostic.config({
+	float = { border = "rounded" }, -- add border to diagnostic popups
+})
+
+-- opt.formatoptions = 'l'
+-- opt.formatoptions = opt.formatoptions
+-- - 'a' -- Auto formatting is BAD.
+-- - 't' -- Don't auto format my code. I got linters for that.
+-- + 'c' -- In general, I like it when comments respect textwidth
+-- - 'o' -- O and o, don't continue comments
+-- + 'r' -- But do continue when pressing enter.
+-- + 'n' -- Indent past the formatlistpat, not underneath it.
+-- + 'j' -- Auto-remove comments if possible.
+-- - '2' -- I'm not in gradeschool anymore
+
+-- Interessante Optionen
+-- opt.shortmess
+-- opt.sessionoptions
+-- opt.scrolljump
+
+-- Gute Vim-Farbthemen
+-- habamax
+-- lunaperche, slate
 
 -- Syntax Highlighting von Vim ausschalten, übernimmt Treesitter
 vim.g.syntax = "off"
 -- Leader-Key von Mappings
 vim.g.mapleader = " "
-
--- Session-Optionen
-vim.o.sessionoptions="blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"

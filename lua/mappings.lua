@@ -24,6 +24,12 @@ map("n", "ZF", "<cmd>qa!<cr>", opts_with_description) -- Alle Buffer erzwungen s
 opts_with_description.desc = "Force close and save all windows"
 map("n", "ZS", "<cmd>wqa<cr>", opts_with_description) -- Alle Buffer erzwungen schließen und speichern
 
+local zen_mode = { active = false, original = {}, buf = nil, wins = {} }
+
+map("n", "ZM", function()
+	funcs.toggle_zen_mode(zen_mode)
+end, { desc = "Toggle Zen Mode" })
+
 opts_with_description.desc = "Scroll down and center cursor"
 map("n", "<C-d>", "<C-d>zz", opts_with_description) -- Beim runterscrollen bleibt Cursor in der Mitte
 
@@ -37,6 +43,15 @@ map("n", "<leader>bd", ":bd<CR>", opts_with_description)
 opts_with_description.desc = "Go to next buffer"
 map("n", "<leader>bn", "<cmd>bn<CR>", opts_with_description)
 
+opts_with_description.desc = "Toggle command line height"
+map("n", "<leader>h", function()
+	if vim.o.cmdheight == 0 then
+		vim.o.cmdheight = 1
+	else
+		vim.o.cmdheight = 0
+	end
+end, opts_with_description)
+
 opts_with_description.desc = "Go to previous buffer"
 map("n", "<leader>bp", "<cmd>bp<CR>", opts_with_description)
 
@@ -48,13 +63,12 @@ map("n", "<leader>bo", "<cmd>enew<CR>", opts_with_description)
 
 opts_with_description.desc = "Copy entire file content"
 map({ "n", "v" }, "yA", "mygoyG`y", opts_with_description) -- Gesamten Dateinhalt kopieren
-map({ "n", "v" }, "<leader>Y", 'mygo"+yG`y', opts_with_description) -- Gesamten Dateinhalt in Systemablage kopieren
+map({ "n", "v" }, "<leader>Y", 'm`go"+yG``', opts_with_description) -- Gesamten Dateinhalt in Systemablage kopieren
 
 opts_with_description.desc = "Copy into system clipboard"
 map({ "n", "v" }, "<leader>y", '"+y', opts_with_description) -- Kopieren in die Systemablage mit y in Visual und Normal-Modus
--- map({ "n", "v" }, "<leader>Y", '"+Y', opts_with_description) -- Kopieren in die Systemablage mit Y in Visual und Normal-Modus
 map({ "n", "v" }, "<leader>p", '"+p', opts_with_description) -- Einfügen aus der Systemablage mit p in Visual und Normal-Modus
-map({ "n", "v" }, "<leader>P", '"+P', opts_with_description) -- Einfügen aus der Systemablage mit P in Visual und Normal-Modus
+map({ "n", "v" }, "<leader>P", '"+p`[v`]=', opts_with_description) -- Einfügen aus der Systemablage mit P in Visual und Normal-Modus
 map("n", "J", "mzJ`z", { desc = "Join line below" }) -- Bei Line Joins bleibt der Cursor stehen
 map("v", "K", ":m '<-2<CR>gv=gv", { desc = "Move line up" }) -- hochbewegen von Zeilen im Visual-Modus
 map("v", "J", ":m '>+1<cr>gv=gv", { desc = "Move line down" }) -- runterbewegen von Zeilen im Visual-Modus
@@ -65,6 +79,13 @@ opts_with_description.desc = "Cut into system clipboard"
 
 opts_with_description.desc = "Paste contents"
 map("v", "p", '"_dP', opts_with_description) -- Überschreiben von anderem Inhalt behält die Zwischenablage
+
+
+-- Copilot Funktionen
+opts_with_description.desc = "Copilot: autocomplete toggle"
+map("n", "<leader>ct", funcs.toggle_copilot, opts_with_description)
+opts_with_description.desc = "Copilot: autocomplete status"
+map("n", "<leader>cs", "<cmd>Copilot status<cr>", opts_with_description)
 
 -- Key Mappings für VimTeX-Funktionen
 vim.api.nvim_set_keymap(
@@ -118,40 +139,27 @@ map({ "n", "v" }, "<leader>z", funcs.center_cursor_horizontally, opts_with_descr
 opts_with_description.desc = "Show File Explorer"
 map({ "n", "v" }, "<C-n>", "<cmd>NvimTreeToggle<CR>", opts_with_description) -- NvimTree Datei-Explorer togglen
 
+opts_with_description.desc = "rename symbol with LSP"
+map("n", "<leader>r", "<cmd>lua vim.lsp.buf.rename()<cr>", opts_with_description)
+
 opts_with_description.desc = "Format file with LSP or Conform"
 local _, conform = pcall(require, "conform")
-vim.keymap.set({ "n", "v" }, "<leader>=", function()
-	conform.format({
-		lsp_fallback = true,
-		async = false,
-		timeout_ms = 1000,
-	})
-end, opts_with_description)
+-- map({ "n", "v" }, "<leader>=", function()
+-- 	conform.format({
+-- 		lsp_fallback = false,
+-- 		async = true,
+-- 		timeout_ms = 3000,
+-- 	})
+-- end, opts_with_description)
+map({"n", "v"}, "<leader>=", 'm`go"+=G``', opts_with_description)
 opts_with_description.desc = "Format file with Vim"
-vim.keymap.set({ "n", "v" }, "<leader>+", function()
+map({ "n", "v" }, "<leader>+", function()
 	funcs.format_file()
 end, opts_with_description)
 
 -- Fugitive Mappings
 opts_with_description.desc = "Git diff of current file"
-map({ "n", "v" }, "<C-g>", function()
-	if funcs.fugitive_diff_is_open() then
-		-- Fermer tous les diffs Fugitive
-		vim.cmd("diffoff!")
-		-- Fermer les buffers fugitive dédiés au diff
-		for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-			local buf = vim.api.nvim_win_get_buf(win)
-			local name = vim.api.nvim_buf_get_name(buf)
-			if name:match("fugitive://") then
-				vim.api.nvim_win_close(win, true)
-			end
-		end
-	else
-		-- Ouvrir le diff Git
-		vim.cmd("Gvdiffsplit")
-	end
-  vim.api.nvim_command("normal! zz")
-end, opts_with_description)
+map({ "n", "v" }, "<C-g>", funcs.toggle_fugitive_diff, opts_with_description)
 
 map("n", "<C-l>", funcs.toggle_gblame, opts_with_description)
 
@@ -189,8 +197,11 @@ map(
 	"<cmd>Telescope command_history<cr>",
 	{ silent = true, noremap = true, desc = "Show command history" }
 )
-map("n", "<C-t>", function() require("functions").theme_switcher() end, { silent = true, noremap = true, desc = "Theme Switcher" })
+map("n", "<C-t>", function()
+	funcs.theme_switcher()
+end, { silent = true, noremap = true, desc = "Theme Switcher" })
 
+map("n", "<leader>fu", funcs.functions_in_buffer, { silent = true, noremap = true, desc = "Find functions" })
 -- map(
 -- 	"n",
 -- 	"<leader>fe",

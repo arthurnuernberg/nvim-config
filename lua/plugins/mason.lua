@@ -14,7 +14,9 @@ return {
         "prismals",
         "pyright",
         "eslint",
+        "gopls"
       },
+      automatic_installation = true,
     },
     dependencies = {
       {

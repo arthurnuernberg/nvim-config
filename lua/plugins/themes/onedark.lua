@@ -9,6 +9,6 @@ return {
       term_colors = true,
       toggle_style_key = "<leader>o",
     })
-    theme.load()
+    -- theme.load()
   end,
 }
