@@ -2,80 +2,80 @@ local M = {}
 local cached_gblame_wins = {}
 
 function M.center_cursor_horizontally()
-	local win_width = vim.api.nvim_win_get_width(0)
-	local current_col = vim.fn.virtcol(".")
-	local new_leftcol = current_col - math.floor(win_width / 2)
-	if new_leftcol < 0 then
-		new_leftcol = 0
-	end
-	vim.fn.winrestview({ leftcol = new_leftcol })
+  local win_width = vim.api.nvim_win_get_width(0)
+  local current_col = vim.fn.virtcol(".")
+  local new_leftcol = current_col - math.floor(win_width / 2)
+  if new_leftcol < 0 then
+    new_leftcol = 0
+  end
+  vim.fn.winrestview({ leftcol = new_leftcol })
 end
 
 function M.format_file()
-	local view = vim.fn.winsaveview()
-	vim.cmd("normal! ggVG=")
-	vim.fn.winrestview(view)
+  local view = vim.fn.winsaveview()
+  vim.cmd("normal! ggVG=")
+  vim.fn.winrestview(view)
 end
 
 function M.fugitive_diff_is_open()
-	for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-		local buf = vim.api.nvim_win_get_buf(win)
-		local name = vim.api.nvim_buf_get_name(buf)
-		if name:match("fugitive://") then
-			return true
-		end
-	end
-	return false
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    local buf = vim.api.nvim_win_get_buf(win)
+    local name = vim.api.nvim_buf_get_name(buf)
+    if name:match("fugitive://") then
+      return true
+    end
+  end
+  return false
 end
 
 function M.toggle_fugitive_diff()
-	if M.fugitive_diff_is_open() then
-		-- Fermer tous les diffs Fugitive
-		vim.cmd("diffoff!")
-		-- Fermer les buffers fugitive dédiés au diff
-		for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-			local buf = vim.api.nvim_win_get_buf(win)
-			local name = vim.api.nvim_buf_get_name(buf)
-			if name:match("fugitive://") then
-				vim.api.nvim_win_close(win, true)
-			end
-		end
-	else
-		-- Ouvrir le diff Git
-		vim.cmd("Gvdiffsplit")
-	end
-	vim.api.nvim_command("normal! zz")
+  if M.fugitive_diff_is_open() then
+    -- Fermer tous les diffs Fugitive
+    vim.cmd("diffoff!")
+    -- Fermer les buffers fugitive dédiés au diff
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      local buf = vim.api.nvim_win_get_buf(win)
+      local name = vim.api.nvim_buf_get_name(buf)
+      if name:match("fugitive://") then
+        vim.api.nvim_win_close(win, true)
+      end
+    end
+  else
+    -- Ouvrir le diff Git
+    vim.cmd("Gvdiffsplit")
+  end
+  vim.api.nvim_command("normal! zz")
 end
 
 function M.toggle_gblame()
-	if #cached_gblame_wins > 0 then
-		for _, win in ipairs(cached_gblame_wins) do
-			if vim.api.nvim_win_is_valid(win) then
-				pcall(vim.api.nvim_win_close, win, true)
-			end
-		end
-		cached_gblame_wins = {}
-		return
-	end
+  if #cached_gblame_wins > 0 then
+    for _, win in ipairs(cached_gblame_wins) do
+      if vim.api.nvim_win_is_valid(win) then
+        pcall(vim.api.nvim_win_close, win, true)
+      end
+    end
+    cached_gblame_wins = {}
+    return
+  end
 
-	vim.cmd("Git blame")
+  vim.cmd("Git blame")
 
-	vim.schedule(function()
-		local wins = {}
-		for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-			local ok, buf = pcall(vim.api.nvim_win_get_buf, win)
-			if ok and buf then
-				local name = vim.api.nvim_buf_get_name(buf) or ""
-				local ok2, ft = pcall(vim.api.nvim_buf_get_option, buf, "filetype")
-				ft = (ok2 and ft) and ft or ""
-				-- On considère comme Fugitive/blame les buffers fugitive ou les filetypes liés
-				if name:match("fugitive://") or ft:match("fugitive") or ft:match("git") then
-					table.insert(wins, win)
-				end
-			end
-		end
-		cached_gblame_wins = wins
-	end)
+  vim.schedule(function()
+    local wins = {}
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+      local ok, buf = pcall(vim.api.nvim_win_get_buf, win)
+      if ok and buf then
+        local name = vim.api.nvim_buf_get_name(buf) or ""
+        local ok2, ft = pcall(vim.api.nvim_buf_get_option, buf, "filetype")
+        ft = (ok2 and ft) and ft or ""
+        -- On considère comme Fugitive/blame les buffers fugitive ou les filetypes liés
+        if name:match("fugitive://") or ft:match("fugitive") or ft:match("git") then
+          table.insert(wins, win)
+        end
+      end
+    end
+    cached_gblame_wins = wins
+  end)
 end
 
 
@@ -94,72 +94,94 @@ local theme_persistence_file = vim.fn.stdpath("data") .. "/theme_persistence.lua
 
 -- Fonction pour charger le thème au démarrage
 M.load_last_theme = function()
-	if vim.fn.filereadable(theme_persistence_file) == 1 then
-		local success, _ = pcall(dofile, theme_persistence_file)
-		if not success then
-			print("Error: Problem while loading the last theme.")
-		end
-	end
+  if vim.fn.filereadable(theme_persistence_file) == 1 then
+    local success, _ = pcall(dofile, theme_persistence_file)
+    if not success then
+      print("Error: Problem while loading the last theme.")
+    end
+  end
 end
 
 local original_notify = vim.notify
 
 vim.notify = function(msg, levels, opts)
-	if msg:match("position_encoding param is required") then
-		return
-	end
+  if msg:match("position_encoding param is required") then
+    return
+  end
   original_notify(msg, levels, opts)
 end
 
 M.functions_in_buffer = function()
-	require("telescope.builtin").lsp_document_symbols({
-		symbols = { "Function", "Method" },
-	})
+  require("telescope.builtin").lsp_document_symbols({
+    symbols = { "Function", "Method" },
+  })
+end
+
+-- Ouvrir un fichier récent choisi dans Telescope dans un nouvel onglet
+M.open_recent_file_in_new_tab = function()
+  require('telescope.builtin').oldfiles({
+    attach_mappings = function(_, _)
+      local actions = require('telescope.actions')
+      actions.select_default:replace(actions.select_tab)
+      return true
+    end,
+  })
+end
+
+-- Ouvrir un fichier dans le répertoire courant choisi dans Telescope dans un nouvel onglet
+M.open_cwd_file_in_new_tab = function()
+  require('telescope.builtin').find_files({
+    attach_mappings = function(_, _)
+      local actions = require('telescope.actions')
+      actions.select_default:replace(actions.select_tab)
+      return true
+    end,
+  })
 end
 
 -- La fonction principale du Switcher
 M.theme_switcher = function()
-	local actions = require("telescope.actions")
-	local action_state = require("telescope.actions.state")
-	local builtin = require("telescope.builtin")
+  local actions = require("telescope.actions")
+  local action_state = require("telescope.actions.state")
+  local builtin = require("telescope.builtin")
 
-	builtin.colorscheme({
-		-- Configuration de la fenêtre (taille demandée)
-		layout_strategy = "center", -- 'center' est souvent mieux pour les petites fenêtres
-		layout_config = {
-			width = 0.3,
-			height = 0.4,
-		},
-		enable_preview = false, -- Prévisualiser en scrollant (comportement par défaut)
+  builtin.colorscheme({
+    -- Configuration de la fenêtre (taille demandée)
+    layout_strategy = "center", -- 'center' est souvent mieux pour les petites fenêtres
+    layout_config = {
+      width = 0.3,
+      height = 0.4,
+    },
+    enable_preview = false, -- Prévisualiser en scrollant (comportement par défaut)
 
-		-- On surcharge l'action de la touche "Entrée"
-		attach_mappings = function(prompt_bufnr, _)
-			actions.select_default:replace(function()
-				actions.close(prompt_bufnr)
+    -- On surcharge l'action de la touche "Entrée"
+    attach_mappings = function(prompt_bufnr, _)
+      actions.select_default:replace(function()
+        actions.close(prompt_bufnr)
 
-				-- Récupérer le thème sélectionné
-				local selection = action_state.get_selected_entry()
-				local theme_name = selection.value
+        -- Récupérer le thème sélectionné
+        local selection = action_state.get_selected_entry()
+        local theme_name = selection.value
 
-				-- 1. Appliquer le thème immédiatement
-				vim.cmd("colorscheme " .. theme_name)
+        -- 1. Appliquer le thème immédiatement
+        vim.cmd("colorscheme " .. theme_name)
 
-				local current_bg = vim.o.background
+        local current_bg = vim.o.background
 
-				-- 2. Sauvegarder pour le prochain démarrage
-				local file = io.open(theme_persistence_file, "w")
-				if file then
-					file:write('vim.cmd("colorscheme ' .. theme_name .. '")\n')
-					file:write('vim.o.background = "' .. current_bg .. '"\n')
-					file:close()
-					print("Thème sauvegardé : " .. theme_name)
-				else
-					print("Erreur : Impossible de sauvegarder le thème.")
-				end
-			end)
-			return true
-		end,
-	})
+        -- 2. Sauvegarder pour le prochain démarrage
+        local file = io.open(theme_persistence_file, "w")
+        if file then
+          file:write('vim.cmd("colorscheme ' .. theme_name .. '")\n')
+          file:write('vim.o.background = "' .. current_bg .. '"\n')
+          file:close()
+          print("Thème sauvegardé : " .. theme_name)
+        else
+          print("Erreur : Impossible de sauvegarder le thème.")
+        end
+      end)
+      return true
+    end,
+  })
 end
 
 M.toggle_zen_mode = function(zen_mode)
@@ -200,7 +222,7 @@ M.toggle_zen_mode = function(zen_mode)
 		require("gitsigns").toggle_signs()
 
 		-- Créer marges
-		local margin = math.floor((vim.o.columns - 100) / 3)
+		local margin = math.floor((vim.o.columns - 100) / 4)
 		if margin > 0 then
 			zen_mode.buf = vim.api.nvim_create_buf(false, true)
 
@@ -255,6 +277,85 @@ M.toggle_zen_mode = function(zen_mode)
 
 		vim.diagnostic.show()
 	end
+end
+
+function M.toggle_quickfix()
+  if vim.fn.empty(vim.fn.filter(vim.fn.getwininfo(), "v:val.quickfix")) == 1 then
+    vim.cmd("copen")
+  else
+    vim.cmd("cclose")
+  end
+end
+
+function M.update_tabline()
+  local buffers = vim.fn.getbufinfo({bufloaded = 1})
+  if #buffers > 1 then
+    vim.o.showtabline = 2  -- affiche la tabline si plusieurs buffers
+  else
+    vim.o.showtabline = 0  -- cache la tabline si un seul buffer
+  end
+end
+
+function M.compile_markdown_to_pdf()
+  local file = vim.fn.expand("%:p")       -- full path of current file
+  local output = vim.fn.expand("%:p:r") .. ".pdf"  -- same path but .pdf extension
+
+  local cmd = {
+    "pandoc",
+    file,
+    "-o",
+    output,
+    "-V",
+    "geometry:margin=2cm",
+    "--variable=draft",
+  }
+
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stderr = function(_, data, _)
+      if data and table.concat(data) ~= "" then
+	vim.schedule(function()
+	  vim.notify("Pandoc error:\n" .. table.concat(data, "\n"), vim.log.levels.ERROR)
+	end)
+      end
+    end,
+    on_exit = function(_, exit_code, _)
+      vim.schedule(function()
+	if exit_code ~= 0 then
+	  vim.notify("Pandoc exited with code " .. exit_code, vim.log.levels.ERROR)
+	end
+      end)
+    end,
+  })
+end
+
+function M.compile_asciidoc_to_pdf()
+  local file = vim.fn.expand("%:p")
+
+  local cmd = {
+    "asciidoctor-pdf",
+    file,
+  }
+
+  vim.fn.jobstart(cmd, {
+    stdout_buffered = true,
+    stderr_buffered = true,
+    on_stderr = function(_, data, _)
+      if data and table.concat(data) ~= "" then
+	vim.schedule(function()
+	  vim.notify("Asciidoctor error:\n" .. table.concat(data, "\n"), vim.log.levels.ERROR)
+	end)
+      end
+    end,
+    on_exit = function(_, exit_code, _)
+      if exit_code ~= 0 then
+	vim.schedule(function()
+	  vim.notify("Asciidoctor exited with code " .. exit_code, vim.log.levels.ERROR)
+	end)
+      end
+    end,
+  })
 end
 
 return M

@@ -1,12 +1,9 @@
 return {
   "norcalli/nvim-colorizer.lua",
-  ft = { "html", "css", "conf" },
+  ft = { "html", "css", "conf", "python" },
   config = function()
     require 'colorizer'.setup({
-      "css",
-      "scss",
-      "html",
-      "conf"
+      '*';
     })
   end,
 }

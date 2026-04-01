@@ -4,7 +4,7 @@ return {
   version = "*",
   opts = {
       options = {
-        mode = "buffers",
+        mode = "tabs",
     },
     highlights = {
       buffer_selected = { italic = false, bold = false },

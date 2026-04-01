@@ -27,8 +27,14 @@ map("n", "ZS", "<cmd>wqa<cr>", opts_with_description) -- Alle Buffer erzwungen s
 local zen_mode = { active = false, original = {}, buf = nil, wins = {} }
 
 map("n", "ZM", function()
-	funcs.toggle_zen_mode(zen_mode)
+  funcs.toggle_zen_mode(zen_mode)
 end, { desc = "Toggle Zen Mode" })
+
+opts_with_description.desc = "Toggle Markdown Split View"
+map("n", "<leader>ms", "<CMD>Markview splitToggle<CR>", opts_with_description) -- Markdown Split View von Markview Plugin togglen
+
+opts_with_description.desc = "Toggle Markdown View"
+map("n", "<leader>mt", "<CMD>Markview toggle<CR>", opts_with_description) -- Markdown View von Markview Plugin togglen
 
 opts_with_description.desc = "Scroll down and center cursor"
 map("n", "<C-d>", "<C-d>zz", opts_with_description) -- Beim runterscrollen bleibt Cursor in der Mitte
@@ -37,19 +43,34 @@ opts_with_description.desc = "Search forward"
 map("n", "n", "nzz", opts_with_description) -- Suchergebnisse in der Mitte bei der Vorwärtssuche
 map("n", "N", "Nzz", opts_with_description) -- Suchergebnisse in der Mitte bei der Rückwärtssuche
 
+opts_with_description.desc = "Search forward"
+map("n", "n", "nzz", opts_with_description) -- Suchergebnisse in der Mitte bei der Vorwärtssuche
+map("n", "N", "Nzz", opts_with_description) -- Suchergebnisse in der Mitte bei der Rückwärtssuche
+
+-- CodeCompanion Shortcuts
+
 opts_with_description.desc = "Close current buffer"
 map("n", "<leader>bd", ":bd<CR>", opts_with_description)
 
 opts_with_description.desc = "Go to next buffer"
-map("n", "<leader>bn", "<cmd>bn<CR>", opts_with_description)
+-- map("n", "<leader>bn", "<cmd>bn<CR>", opts_with_description)
+
+opts_with_description.desc = "Close quickfix list"
+map("n", "<leader>ec", "<cmd>cclose<CR>", opts_with_description)
+
+opts_with_description.desc = "Open Quickfix List"
+map("n", "<leader>eo", "<cmd>copen<CR>", opts_with_description)
+
+opts_with_description.desc = "Toggle Quickfix List"
+map("n", "<leader>et", function() funcs.toggle_quickfix() end, opts_with_description)
 
 opts_with_description.desc = "Toggle command line height"
 map("n", "<leader>h", function()
-	if vim.o.cmdheight == 0 then
-		vim.o.cmdheight = 1
-	else
-		vim.o.cmdheight = 0
-	end
+  if vim.o.cmdheight == 0 then
+    vim.o.cmdheight = 1
+  else
+    vim.o.cmdheight = 0
+  end
 end, opts_with_description)
 
 opts_with_description.desc = "Go to previous buffer"
@@ -61,9 +82,26 @@ map("n", "<leader>bl", "<cmd>buffers<CR>", opts_with_description)
 opts_with_description.desc = "Open a new buffer"
 map("n", "<leader>bo", "<cmd>enew<CR>", opts_with_description)
 
+opts_with_description.desc = "New empty tab"
+map("n", "<leader>tn", "<cmd>tabnew<CR>", opts_with_description)
+
+opts_with_description.desc = "New tab with telescope cwd file finder"
+map("n", "<leader>tf", funcs.open_cwd_file_in_new_tab, opts_with_description)
+
+opts_with_description.desc = "New tab with telescope recent file finder"
+map("n", "<leader>tr", funcs.open_recent_file_in_new_tab, opts_with_description)
+
+opts_with_description.desc = "Close tab"
+map("n", "<leader>tc", "<cmd>tabclose<CR>", opts_with_description)
+
+map("n", "<C-h>", "1gt", { noremap = true, silent = true, desc = "Go to tab 1" })
+map("n", "<C-t>", "2gt", { noremap = true, silent = true, desc = "Go to tab 2" })
+map("n", "<C-n>", "3gt", { noremap = true, silent = true, desc = "Go to tab 3" })
+map("n", "<C-s>", "4gt", { noremap = true, silent = true, desc = "Go to tab 4" })
+
 opts_with_description.desc = "Copy entire file content"
-map({ "n", "v" }, "yA", "mygoyG`y", opts_with_description) -- Gesamten Dateinhalt kopieren
-map({ "n", "v" }, "<leader>Y", 'm`go"+yG``', opts_with_description) -- Gesamten Dateinhalt in Systemablage kopieren
+-- map({ "n", "v" }, "yA", "mygoyG`y", opts_with_description) -- Gesamten Dateinhalt kopieren
+map({ "n", "v" }, "<leader>Y", ":%y+<CR>", opts_with_description) -- Gesamten Dateinhalt in Systemablage kopieren
 
 opts_with_description.desc = "Copy into system clipboard"
 map({ "n", "v" }, "<leader>y", '"+y', opts_with_description) -- Kopieren in die Systemablage mit y in Visual und Normal-Modus
@@ -87,48 +125,48 @@ map("n", "<leader>ct", funcs.toggle_copilot, opts_with_description)
 opts_with_description.desc = "Copilot: autocomplete status"
 map("n", "<leader>cs", "<cmd>Copilot status<cr>", opts_with_description)
 
--- Key Mappings für VimTeX-Funktionen
-vim.api.nvim_set_keymap(
-	"n",
-	"<leader>li",
-	"<cmd>VimtexInfo<CR>",
-	{ silent = true, noremap = true, desc = "Show VimTeX Info" }
-)
-
-vim.api.nvim_set_keymap(
-	"n",
-	"<leader>lI",
-	"<cmd>VimtexInfoFull<CR>",
-	{ silent = true, noremap = true, desc = "Show VimTeX Full Info" }
-)
-
-vim.api.nvim_set_keymap(
-	"n",
-	"<leader>lt",
-	"<cmd>VimtexTOCOpen<CR>",
-	{ silent = true, noremap = true, desc = "Open Table of Contents" }
-)
-
-vim.api.nvim_set_keymap(
-	"n",
-	"<leader>ls",
-	"<cmd>VimtexStatus<CR>",
-	{ silent = true, noremap = true, desc = "Show VimTeX Status" }
-)
-
-vim.api.nvim_set_keymap(
-	"n",
-	"<leader>lc",
-	"<cmd>VimtexCompile<CR>",
-	{ silent = true, noremap = true, desc = "Compile LaTeX document" }
-)
-
-vim.api.nvim_set_keymap(
-	"n",
-	"<leader>lv",
-	"<cmd>VimtexView<CR>",
-	{ silent = true, noremap = true, desc = "View compiled PDF" }
-)
+-- -- Key Mappings für VimTeX-Funktionen
+-- vim.api.nvim_set_keymap(
+-- 	"n",
+-- 	"<leader>li",
+-- 	"<cmd>VimtexInfo<CR>",
+-- 	{ silent = true, noremap = true, desc = "Show VimTeX Info" }
+-- )
+--
+-- vim.api.nvim_set_keymap(
+-- 	"n",
+-- 	"<leader>lI",
+-- 	"<cmd>VimtexInfoFull<CR>",
+-- 	{ silent = true, noremap = true, desc = "Show VimTeX Full Info" }
+-- )
+--
+-- vim.api.nvim_set_keymap(
+-- 	"n",
+-- 	"<leader>lt",
+-- 	"<cmd>VimtexTOCOpen<CR>",
+-- 	{ silent = true, noremap = true, desc = "Open Table of Contents" }
+-- )
+--
+-- vim.api.nvim_set_keymap(
+-- 	"n",
+-- 	"<leader>ls",
+-- 	"<cmd>VimtexStatus<CR>",
+-- 	{ silent = true, noremap = true, desc = "Show VimTeX Status" }
+-- )
+--
+-- vim.api.nvim_set_keymap(
+-- 	"n",
+-- 	"<leader>lc",
+-- 	"<cmd>VimtexCompile<CR>",
+-- 	{ silent = true, noremap = true, desc = "Compile LaTeX document" }
+-- )
+--
+-- vim.api.nvim_set_keymap(
+-- 	"n",
+-- 	"<leader>lv",
+-- 	"<cmd>VimtexView<CR>",
+-- 	{ silent = true, noremap = true, desc = "View compiled PDF" }
+-- )
 
 map("n", "<leader>wr", "<cmd>AutoSession restore<CR>", { desc = "Restore session for cwd" }) -- Letzte Session in diesem Pfad wiederherstellen
 map("n", "<leader>ws", "<cmd>AutoSession save<CR>", { desc = "Save session for auto session root dir" }) -- Session in diesem Pfad speichern
@@ -136,8 +174,8 @@ map("n", "<leader>ws", "<cmd>AutoSession save<CR>", { desc = "Save session for a
 opts_with_description.desc = "Center cursor horizontally"
 map({ "n", "v" }, "<leader>z", funcs.center_cursor_horizontally, opts_with_description)
 
-opts_with_description.desc = "Show File Explorer"
-map({ "n", "v" }, "<C-n>", "<cmd>NvimTreeToggle<CR>", opts_with_description) -- NvimTree Datei-Explorer togglen
+-- opts_with_description.desc = "Show File Explorer"
+-- map({ "n", "v" }, "<leader>n", "<cmd>NvimTreeToggle<CR>", opts_with_description) -- NvimTree Datei-Explorer togglen
 
 opts_with_description.desc = "rename symbol with LSP"
 map("n", "<leader>r", "<cmd>lua vim.lsp.buf.rename()<cr>", opts_with_description)
@@ -154,7 +192,7 @@ local _, conform = pcall(require, "conform")
 map({"n", "v"}, "<leader>=", 'm`go"+=G``', opts_with_description)
 opts_with_description.desc = "Format file with Vim"
 map({ "n", "v" }, "<leader>+", function()
-	funcs.format_file()
+  funcs.format_file()
 end, opts_with_description)
 
 -- Fugitive Mappings
@@ -165,40 +203,40 @@ map("n", "<C-l>", funcs.toggle_gblame, opts_with_description)
 
 -- Telescope Mappings
 map(
-	"n",
-	"<leader>ff",
-	"<cmd>Telescope find_files<cr>",
-	{ silent = true, noremap = true, desc = "Fuzzy find files in cwd" }
+  "n",
+  "<leader>ff",
+  "<cmd>Telescope find_files<cr>",
+  { silent = true, noremap = true, desc = "Fuzzy find files in cwd" }
 )
 
 -- map( "n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { silent = true, noremap = true, desc = "Fuzzy find recent files" })
 map("n", "<leader>fr", function()
-	require("telescope.builtin").oldfiles({ results = 300 })
+  require("telescope.builtin").oldfiles({ results = 300 })
 end, {
-	silent = true,
-	noremap = true,
-	desc = "Fuzzy find recent files",
-})
+    silent = true,
+    noremap = true,
+    desc = "Fuzzy find recent files",
+  })
 
 map("n", "<leader>fg", "<cmd>Telescope live_grep<cr>", { silent = true, noremap = true, desc = "Find string in cwd" })
 map(
-	"n",
-	"<leader>fc",
-	"<cmd>Telescope grep_string<cr>",
-	{ silent = true, noremap = true, desc = "Find string under cursor in cwd" }
+  "n",
+  "<leader>fc",
+  "<cmd>Telescope grep_string<cr>",
+  { silent = true, noremap = true, desc = "Find string under cursor in cwd" }
 )
 map("n", "<leader>ft", "<cmd>TodoTelescope<cr>", { silent = true, noremap = true, desc = "Find todos" })
 map("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { silent = true, noremap = true, desc = "Find buffers" })
 map("n", "<leader>fh", "<cmd>Telescope help_tags<cr>", { silent = true, noremap = true, desc = "Search in help" })
 map("n", "<leader>fk", "<cmd>Telescope keymaps<cr>", { silent = true, noremap = true, desc = "Show Keymaps" })
 map(
-	"n",
-	"<leader>fi",
-	"<cmd>Telescope command_history<cr>",
-	{ silent = true, noremap = true, desc = "Show command history" }
+  "n",
+  "<leader>fi",
+  "<cmd>Telescope command_history<cr>",
+  { silent = true, noremap = true, desc = "Show command history" }
 )
-map("n", "<C-t>", function()
-	funcs.theme_switcher()
+map("n", "<leader>ts", function()
+  funcs.theme_switcher()
 end, { silent = true, noremap = true, desc = "Theme Switcher" })
 
 map("n", "<leader>fu", funcs.functions_in_buffer, { silent = true, noremap = true, desc = "Find functions" })
@@ -215,53 +253,53 @@ map("n", "<leader>fu", funcs.functions_in_buffer, { silent = true, noremap = tru
 
 -- F5 : Debugging starten/fortfahren
 map("n", "<F5>", function()
-	require("dap").continue()
+  require("dap").continue()
 end, { silent = true, noremap = true, desc = "DAP Continue/Start" })
 
 -- F7 : Beenden
 map("n", "<F7>", function()
-	require("dap").close()
+  require("dap").close()
 end, { silent = true, noremap = true, desc = "DAP Close Session" })
 
 -- F10 : step over
 map("n", "<F10>", function()
-	require("dap").step_over()
+  require("dap").step_over()
 end, { silent = true, noremap = true, desc = "DAP Step Over" })
 
 -- F6 : step into
 map("n", "<F6>", function()
-	require("dap").step_into()
+  require("dap").step_into()
 end, { silent = true, noremap = true, desc = "DAP Step Into" })
 
 -- F12 : step out
 map("n", "<F12>", function()
-	require("dap").step_out()
+  require("dap").step_out()
 end, { silent = true, noremap = true, desc = "DAP Step Out" })
 
 -- <leader>db : Abbruchpunkt
 map("n", "<leader>db", function()
-	require("dap").toggle_breakpoint()
+  require("dap").toggle_breakpoint()
 end, { silent = true, noremap = true, desc = "DAP Toggle Breakpoint" })
 
 -- <leader>dB : konditioneller Abbruchpunkt
 map("n", "<leader>dB", function()
-	local cond = vim.fn.input("Breakpoint condition: ")
-	if cond ~= "" then
-		require("dap").set_breakpoint(cond)
-	end
+  local cond = vim.fn.input("Breakpoint condition: ")
+  if cond ~= "" then
+    require("dap").set_breakpoint(cond)
+  end
 end, { silent = true, noremap = true, desc = "DAP Conditional Breakpoint" })
 
 -- <leader>dr : REPL DAP starten (Direkte Konsole)
 map("n", "<leader>dr", function()
-	require("dap").repl.open()
+  require("dap").repl.open()
 end, { silent = true, noremap = true, desc = "DAP Live Console" })
 
 -- <leader>dl : Letzte Konfiguration erneut starten
 map("n", "<leader>dl", function()
-	require("dap").run_last()
+  require("dap").run_last()
 end, { silent = true, noremap = true, desc = "DAP Run Last Config" })
 
 -- <leader>du : UI DAP ein/ausschalten
 map("n", "<leader>du", function()
-	require("dapui").toggle()
+  require("dapui").toggle()
 end, { silent = true, noremap = true, desc = "DAP UI Toggle" })

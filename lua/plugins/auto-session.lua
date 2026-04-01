@@ -1,6 +1,7 @@
 return {
 	"rmagatti/auto-session",
 	name = "session-restore",
+  event = "VeryLazy",
 	config = function()
 		local auto_session = require("auto-session")
 

@@ -30,6 +30,12 @@ opt.wrap = false
 opt.swapfile = false
 -- Undo-File für mehr Undo-Möglichkeiten
 opt.undofile = true
+-- Backup von mit nvim bearbeiteten Dateien
+opt.backup = true
+-- Verzeichnis mit allen Backupdateien
+opt.writebackup = true
+-- Nvim erweitert das Verzeichnis zum vollständigen Pfad
+opt.backupdir = vim.fn.expand("~/.local/state/nvim/backup//")
 -- Timeout für Kombinations-Shortcuts senken
 opt.timeoutlen = 600
 -- Highlighting der Suchergebnisse noch nach Suche deaktivieren
@@ -43,7 +49,7 @@ opt.smartcase = true
 -- Erweiterte Farbunterstützung
 opt.termguicolors = true
 -- Platz neben Zeilennummern dynamisch lassen, mindenstens 1, maximal 5 Spalten
-opt.signcolumn = "auto:1-5"
+opt.signcolumn = "auto:1-3"
 -- Schnelle Update-Zeiten
 opt.updatetime = 50
 -- System- und Vim-Register trennen
@@ -53,12 +59,16 @@ opt.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,te
 -- zeigt leere Zeichen an
 opt.list = false
 opt.listchars = {
-	tab = "->",
-	space = " ",
-	multispace = " ",
-	trail = "",
-	extends = "⟩",
-	precedes = "⟨",
+  tab = "->",
+  space = " ",
+  multispace = " ",
+  trail = "",
+  extends = "⟩",
+  precedes = "⟨",
+}
+-- zeigt am Ende von Dateien nichts an, standardmäßig füllt '~' alle Zeilen nach EOF
+opt.fillchars = {
+  eob = " "  
 }
 vim.g.showbreak = "↪"
 
